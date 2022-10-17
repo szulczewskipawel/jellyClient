@@ -5,13 +5,15 @@ import os
 import sys
 
 confFile = os.path.expanduser('~') + '/.jconf.json'
-mustHaveKeys = ['url', 'username']
+mustHaveKeys = ['url', 'username', 'authssl', 'password']
 
 class JellyConf():
     def __init__(self):
         credsData = self.getCredentials()
         self.username = credsData['username'] 
-        self.url = credsData['url'] 
+        self.url = credsData['url']
+        self.authssl = credsData['authssl']
+        self.password = credsData['password']
 
     def getCredentials(self, file=confFile):
         file = Path(confFile)
