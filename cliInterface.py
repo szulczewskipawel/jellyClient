@@ -18,11 +18,12 @@ def printPrettyTable(data, headers):
     print(tabulate(values, fixedHeaders + list(headers)))
     print()
 
-class cliInterface(cmd.Cmd):
+def parse(arg):
+    return tuple(map(str, arg.split()))
 
+class cliInterface(cmd.Cmd):
     intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\n"
     prompt = '(jelly) '
-
     connection = None
 
     def emptyline(self):
@@ -70,4 +71,20 @@ class cliInterface(cmd.Cmd):
     def do_clear(self, arg):
         'Clears the screen'
         clear()
+
+    def do_search(self, arg):
+        '''Searches the database:
+        search <text> <limit>
+            <text>  is a word you want to search, 
+            <limit> shows first <limit> items found, default=20'''
+        tArgs = parse(arg)
+        searchTerm = tArgs[0]
+        searchLimit = tArgs[1] if len(tArgs) > 1 else 20
+
+        searches = self.client.jellyfin.search_media_items(term = searchTerm, limit = searchLimit)["Items"]
+        searchesList = []
+        for i in range(len(searches)):
+            searchesList.append(searches[i]["Name"])
+
+        printPrettyTable(searchesList, ["Name"])
 
