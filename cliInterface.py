@@ -2,21 +2,22 @@ from conf.constants import CLIENT_VERSION
 from click import clear
 from connection import jellyConnect
 from tabulate import tabulate
+from prettytable import PrettyTable
 
 import cmd
 import sys
 
-def printPrettyTable(data, headers):
-    values = list()
-    fixedHeaders = ["Lp"]
-    print()
-    for i in range(len(data)):
-        val = []
-        val.append(i+1)
-        val.append(data[i])
-        values.append(val)
-    print(tabulate(values, fixedHeaders + list(headers)))
-    print()
+def printPrettyTable(data):
+    i = 0
+    for z in data:
+        if i == 0:
+            z.insert(0, "Lp")
+        else:
+            z.insert(0, i)
+        i += 1
+    tab = PrettyTable(data[0])
+    tab.add_rows(data[1:])
+    print(tab)
 
 def parse(arg):
     return tuple(map(str, arg.split()))
@@ -54,20 +55,24 @@ class cliInterface(cmd.Cmd):
             return
 
         users = self.client.jellyfin.get_users()
-        usersList = []
+        usersList = [["Name"]]
         for i in range(len(users)):
-            usersList.append(users[i]["Name"])
+            uList = list()
+            uList.append(users[i]["Name"])
+            usersList.append(uList)
 
-        printPrettyTable(usersList, ["username"])
+        printPrettyTable(usersList)
 
     def do_recentlyAddedStuff(self, arg):
         'Shows recently added stuff'
         added = self.client.jellyfin.get_recently_added()
-        addedList = []
+        addedList = [["Name"]] 
         for i in range(len(added)):
-            addedList.append(added[i]["Name"])
+            aList = list()
+            aList.append(added[i]["Name"])
+            addedList.append(aList)
 
-        printPrettyTable(addedList, ["Name"])
+        printPrettyTable(addedList)
 
     def do_clear(self, arg):
         'Clears the screen'
@@ -84,9 +89,12 @@ class cliInterface(cmd.Cmd):
         searchLimit = tArgs[1] if len(tArgs) > 1 else 20
 
         searches = self.client.jellyfin.search_media_items(term = searchTerm, limit = searchLimit)["Items"]
-        searchesList = []
+        sList = [["Name"]] 
         for i in range(len(searches)):
+            searchesList = list()
             searchesList.append(searches[i]["Name"])
 
-        printPrettyTable(searchesList, ["Name"])
+            sList.append(searchesList)
+
+        printPrettyTable(sList)
 
