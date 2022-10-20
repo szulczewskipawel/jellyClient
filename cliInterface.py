@@ -1,7 +1,6 @@
 from conf.constants import CLIENT_VERSION
 from click import clear
 from connection import jellyConnect
-from tabulate import tabulate
 from prettytable import PrettyTable
 
 import cmd
