@@ -1,5 +1,8 @@
 from prettytable import PrettyTable
 
+def parse(arg):
+    return tuple(map(str, arg.split()))
+
 def printPrettyTable(data):
     i = 0
     for z in data:

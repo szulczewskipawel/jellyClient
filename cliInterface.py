@@ -1,16 +1,14 @@
-from conf.constants import CLIENT_VERSION
 from click import clear
+from conf.constants import CLIENT_VERSION
 from connection import jellyConnect
-from outputs import printPrettyTable, showBufferOrPlaylist
+from outputs import parse, printPrettyTable, showBufferOrPlaylist
 
 import cmd
+import subprocess
 import sys
 
 songBuffer = dict()
 playlist = dict()
-
-def parse(arg):
-    return tuple(map(str, arg.split()))
 
 class cliInterface(cmd.Cmd):
     intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\n"
@@ -19,26 +17,26 @@ class cliInterface(cmd.Cmd):
     conf = None
 
     def emptyline(self):
-        self.default('')
+        return
 
     def default(self, arg):
         print ("\nWhat? Dunno understand ya, type help or ? to list commands.\n")
 
-    def do_connect(self, arg):
+    def do_c(self, arg):
         'Tries to connect to the server...'
         self.connection = jellyConnect(self.conf)
         self.client = self.connection.client
         
-    def do_quit(self, arg):
+    def do_q(self, arg):
         'Says bye-bye to the server'
         print('\nSee you later aligator!\n')
         sys.exit(0)
 
-    def do_version(self, arg):
+    def do_v(self, arg):
         'Prints version of the client'
         print("\n{}\n".format(CLIENT_VERSION))
 
-    def do_users(self, arg):
+    def do_u(self, arg):
         'Shows all registered users'
         if self.connection is None:
             print('Client is not connected! Please connect to the server.')
@@ -53,7 +51,7 @@ class cliInterface(cmd.Cmd):
 
         printPrettyTable(usersList)
 
-    def do_recentlyAddedStuff(self, arg):
+    def do_r(self, arg):
         'Shows recently added stuff'
         added = self.client.jellyfin.get_recently_added()
         addedList = [["Name"]] 
@@ -68,10 +66,10 @@ class cliInterface(cmd.Cmd):
         'Clears the screen'
         clear()
 
-    def do_search(self, arg):
+    def do_s(self, arg):
         # TODO searching statements, eg "losing my religion" (words between ")
         '''Searches the database:
-        search <word> <limit>
+        s <word> <limit>
             <word>  is a word you want to search, default = chopin, 
             <limit> shows first <limit> items found, default = 20'''
         songBuffer.clear()
@@ -79,7 +77,7 @@ class cliInterface(cmd.Cmd):
         searchTerm = tArgs[0] if len(tArgs) > 0 else 'chopin'
         searchLimit = tArgs[1] if len(tArgs) > 1 else 20
 
-        searches = self.client.jellyfin.search_media_items(term = searchTerm, limit = searchLimit)["Items"]
+        searches = self.client.jellyfin.search_media_items(term=searchTerm, limit=searchLimit)["Items"]
         sList = [["Name"]]
         for i in range(len(searches)):
             searchesList = list()
@@ -93,11 +91,46 @@ class cliInterface(cmd.Cmd):
 
         printPrettyTable(sList)
 
-    def do_buffer(self, arg):
+    def do_b(self, arg):
         'Shows actual buffer'
         showBufferOrPlaylist(songBuffer)
    
-    def do_playlist(self, arg):
+    def do_p(self, arg):
         'Shows playlist'
         showBufferOrPlaylist(playlist)
+
+    def do_i(self, arg):
+        '''Insert song (existed in buffer) to playlist
+        i <number>
+            <number> is a buffer's song number, default = 1'''
+        tArgs = parse(arg)
+        songNumber = int(tArgs[0]) if len(tArgs) > 0 else 1
+
+        if songNumber not in songBuffer:
+            print("Check the buffer again, this number aint existing there!")
+            return
+
+        l = len(playlist)
+        songName = songBuffer[songNumber][0]
+        playlist[l+1] = songBuffer[songNumber]
+        print ('Song "{}" added to the playlist at position {}'.format(songName, l+1))
+
+    def do_pl(self, arg):
+        '''Plays the song
+        pl <number>
+            <number> is a playlist's song number, default = 1'''
+        tArgs = parse(arg)
+        songNumber = int(tArgs[0]) if len(tArgs) > 0 else 1
+
+        if songNumber not in playlist:
+            print("Check the playlist, this number aint existing there!")
+            return
+
+        songUrl = self.client.jellyfin.download_url(playlist[songNumber][1])
+
+        pList = list()
+        pList.append(self.conf.player)
+        pList.append(songUrl)
+
+        subprocess.run(pList)
 
