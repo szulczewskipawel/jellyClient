@@ -1,7 +1,7 @@
 from click import clear
 from conf.constants import CLIENT_VERSION
 from connection import jellyConnect
-from outputs import parse, printPrettyTable, showBufferOrPlaylist
+from outputs import *
 
 import cmd
 import subprocess
@@ -133,4 +133,27 @@ class cliInterface(cmd.Cmd):
         pList.append(songUrl)
 
         subprocess.run(pList)
+
+    def do_sp(self, arg):
+        'Saves playlist'
+        savePlaylist(playlist)
+
+    def do_lp(self, arg):
+        'Loads playlist'
+        global playlist
+        playlist = loadPlaylist()
+        self.do_p(self)
+
+    def do_d(self, arg):
+        '''Deletes song from playlist
+        d <number>
+            <number> is a playlist's song number, default = 1'''
+        tArgs = parse(arg)
+        songNumber = int(tArgs[0]) if len(tArgs) > 0 else 1
+        global playlist
+
+        if songNumber not in playlist:
+            print("Check the playlist, this number aint existing there!")
+            return
+        playlist.pop(songNumber)
 

@@ -1,11 +1,9 @@
 from pathlib import Path
+from conf.constants import CONF_FILE, MUST_HAVE_KEYS
 
 import json
 import os
 import sys
-
-confFile = os.path.expanduser('~') + '/.jconf.json'
-mustHaveKeys = ['url', 'username', 'password', 'player']
 
 class JellyConf():
     def __init__(self):
@@ -20,10 +18,10 @@ class JellyConf():
         else:
             self.authssl = credsData['authssl']
 
-    def getConfs(self, file=confFile):
-        file = Path(confFile)
+    def getConfs(self, file=CONF_FILE):
+        file = Path(CONF_FILE)
         if not file.exists():
-            print("\nFATAL: Configuration file {} does not exist!\n".format(confFile))
+            print("\nFATAL: Configuration file {} does not exist!\n".format(CONF_FILE))
             sys.exit(100)
 
         f = open(file) 
@@ -32,7 +30,7 @@ class JellyConf():
 
         # checking if all necessary keys (to connect) are available
         notConfKeys = []
-        for k in mustHaveKeys:
+        for k in MUST_HAVE_KEYS:
             if k not in confData:
                notConfKeys.append(k) 
         if len(notConfKeys) > 0:

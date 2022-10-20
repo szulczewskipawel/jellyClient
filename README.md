@@ -14,3 +14,25 @@ Where:
 * authssl -- authentication via SSL? Acceptable values: True or False, False is by default,
 * player -- your local media player, like mplayer or whatever
 
+## commands
+* b -- shows buffer (list of searched songs you may wanna add to the playlist),
+* c -- connect to the server,
+* d <number> -- deletes song number <number> from playlist,
+* clear -- clears the screen,
+* help -- should help you with commands,
+* i <number> -- insert song number <number> (from buffer) to the playlist, default 1,
+* p -- show playlist
+* pl <number> -- plays the song number <number> (from playlist), default 1,
+* q -- quits this beautiful client,
+* r -- shows recently added to the server stuff,
+* s <word> <limit> -- searches database, <word> is a word to search (default chopin), <limit> limits
+  items found (default 20),
+* u -- shows all registered users,
+* v -- shows version of the client
+
+## TODO
+* Searching not only by words, but also by statements, like "losing my religion" (words between "),
+* Some nice information like 'Connected to the server' when you're connected to the server,
+* Infite play (shuffle or repeat),
+* Flag to connected to the server automatically,
+
