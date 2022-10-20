@@ -6,6 +6,9 @@ from prettytable import PrettyTable
 import cmd
 import sys
 
+songBuffer = dict()
+playlist = dict()
+
 def printPrettyTable(data):
     i = 0
     for z in data:
@@ -20,6 +23,17 @@ def printPrettyTable(data):
 
 def parse(arg):
     return tuple(map(str, arg.split()))
+
+def showBufferOrPlaylist(buforplay):
+    if len(buforplay) > 0:
+        bList = [["Name"]]
+        for i in buforplay:
+            smList = list()
+            smList.append(buforplay[i][0])
+            bList.append(smList)
+        printPrettyTable(bList)
+    else:
+        print('The list is empty at this momment.')
 
 class cliInterface(cmd.Cmd):
     intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\n"
@@ -47,7 +61,7 @@ class cliInterface(cmd.Cmd):
         'Prints version of the client'
         print("\n{}\n".format(CLIENT_VERSION))
 
-    def do_showUsers(self, arg):
+    def do_users(self, arg):
         'Shows all registered users'
         if self.connection is None:
             print('Client is not connected! Please connect to the server.')
@@ -83,17 +97,30 @@ class cliInterface(cmd.Cmd):
         search <word> <limit>
             <word>  is a word you want to search, default = chopin, 
             <limit> shows first <limit> items found, default = 20'''
+        songBuffer.clear()
         tArgs = parse(arg)
         searchTerm = tArgs[0] if len(tArgs) > 0 else 'chopin'
         searchLimit = tArgs[1] if len(tArgs) > 1 else 20
 
         searches = self.client.jellyfin.search_media_items(term = searchTerm, limit = searchLimit)["Items"]
-        sList = [["Name"]] 
+        sList = [["Name"]]
         for i in range(len(searches)):
             searchesList = list()
-            searchesList.append(searches[i]["Name"])
 
+            songName = searches[i]["Name"]
+            songId = searches[i]["Id"]
+
+            searchesList.append(songName)
             sList.append(searchesList)
+            songBuffer[i+1] = (songName, songId, )
 
         printPrettyTable(sList)
+
+    def do_buffer(self, arg):
+        'Shows actual buffer'
+        showBufferOrPlaylist(songBuffer)
+   
+    def do_playlist(self, arg):
+        'Shows playlist'
+        showBufferOrPlaylist(playlist)
 
