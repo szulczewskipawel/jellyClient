@@ -1,12 +1,11 @@
-from conf.constants import *
-from conf.jellyConf import *
+from conf.constants import USER_APP_NAME, CLIENT_VERSION, USER_AGENT 
 from jellyfin_apiclient_python import JellyfinClient
 
 import socket
 
 class jellyConnect():
-    def __init__(self):
-        jConf = JellyConf()
+    def __init__(self, conf):
+        jConf = conf
         self.authssl = jConf.authssl
         self.url = jConf.url
         self.username = jConf.username
@@ -21,7 +20,7 @@ class jellyConnect():
         client.config.data['auth.ssl'] = authssl
 
         client.auth.connect_to_address(self.url)
-        result = client.auth.login(self.url, self.username, self.password)
+        client.auth.login(self.url, self.username, self.password)
 
         # TODO: information 'client connected' or so
         return client

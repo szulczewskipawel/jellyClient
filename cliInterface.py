@@ -25,6 +25,7 @@ class cliInterface(cmd.Cmd):
     intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\n"
     prompt = '(jelly) '
     connection = None
+    conf = None
 
     def emptyline(self):
         self.default('')
@@ -34,7 +35,7 @@ class cliInterface(cmd.Cmd):
 
     def do_connect(self, arg):
         'Tries to connect to the server...'
-        self.connection = jellyConnect()
+        self.connection = jellyConnect(self.conf)
         self.client = self.connection.client
         
     def do_quit(self, arg):
@@ -73,12 +74,13 @@ class cliInterface(cmd.Cmd):
         clear()
 
     def do_search(self, arg):
+        # TODO searching statements, eg "losing my religion" (words between ")
         '''Searches the database:
-        search <text> <limit>
-            <text>  is a word you want to search, 
-            <limit> shows first <limit> items found, default=20'''
+        search <word> <limit>
+            <word>  is a word you want to search, default = chopin, 
+            <limit> shows first <limit> items found, default = 20'''
         tArgs = parse(arg)
-        searchTerm = tArgs[0]
+        searchTerm = tArgs[0] if len(tArgs) > 0 else 'chopin'
         searchLimit = tArgs[1] if len(tArgs) > 1 else 20
 
         searches = self.client.jellyfin.search_media_items(term = searchTerm, limit = searchLimit)["Items"]

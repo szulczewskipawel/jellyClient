@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 
+from conf.jellyConf import *
 from cliInterface import cliInterface
 
 class JellyClient():
     def __init__(self):
-        cliInterf = cliInterface().cmdloop()
+        conf = JellyConf()
+
+        cliInterf = cliInterface()
+        cliInterf.conf = conf
+        cliInterf.cmdloop()
 
 foo = JellyClient()
 
