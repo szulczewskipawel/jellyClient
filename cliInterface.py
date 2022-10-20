@@ -1,7 +1,7 @@
 from conf.constants import CLIENT_VERSION
 from click import clear
 from connection import jellyConnect
-from prettytable import PrettyTable
+from outputs import printPrettyTable, showBufferOrPlaylist
 
 import cmd
 import sys
@@ -9,31 +9,8 @@ import sys
 songBuffer = dict()
 playlist = dict()
 
-def printPrettyTable(data):
-    i = 0
-    for z in data:
-        if i == 0:
-            z.insert(0, "Lp")
-        else:
-            z.insert(0, i)
-        i += 1
-    tab = PrettyTable(data[0])
-    tab.add_rows(data[1:])
-    print(tab)
-
 def parse(arg):
     return tuple(map(str, arg.split()))
-
-def showBufferOrPlaylist(buforplay):
-    if len(buforplay) > 0:
-        bList = [["Name"]]
-        for i in buforplay:
-            smList = list()
-            smList.append(buforplay[i][0])
-            bList.append(smList)
-        printPrettyTable(bList)
-    else:
-        print('The list is empty at this momment.')
 
 class cliInterface(cmd.Cmd):
     intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\n"
