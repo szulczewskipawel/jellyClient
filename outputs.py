@@ -18,7 +18,7 @@ def printPrettyTable(data):
     i = 0
     for z in data:
         if i == 0:
-            z.insert(0, "Lp")
+            z.insert(0, "No")
         else:
             z.insert(0, i)
         i += 1

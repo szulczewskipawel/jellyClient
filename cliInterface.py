@@ -14,14 +14,13 @@ class cliInterface(cmd.Cmd):
     intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\n"
     prompt = '(jelly) '
     connection = None
-    autoConnect = None
     conf = None
 
     def emptyline(self):
         return
 
     def default(self, arg):
-        print ("\nWhat? Dunno understand ya, type help or ? to list commands.\n")
+        print ("What? Dunno understand ya, type help or ? to list commands.")
 
     def do_c(self, arg):
         'Tries to connect to the server...'
@@ -30,12 +29,12 @@ class cliInterface(cmd.Cmd):
         
     def do_q(self, arg):
         'Says bye-bye to the server'
-        print('\nSee you later aligator!\n')
+        print('See you later aligator!')
         sys.exit(0)
 
     def do_v(self, arg):
         'Prints version of the client'
-        print("\n{}\n".format(CLIENT_VERSION))
+        print("{}".format(CLIENT_VERSION))
 
     def do_u(self, arg):
         'Shows all registered users'
@@ -79,14 +78,24 @@ class cliInterface(cmd.Cmd):
         searchLimit = tArgs[1] if len(tArgs) > 1 else 20
 
         searches = self.client.jellyfin.search_media_items(term=searchTerm, limit=searchLimit)["Items"]
-        sList = [["Name"]]
+        sList = [["Name", "Type", "Artist(s)"]]
         for i in range(len(searches)):
             searchesList = list()
 
             searchName = searches[i]["Name"]
             searchId = searches[i]["Id"]
+            searchType = searches[i]["Type"]
+
+            # you wont believe -- not every audio has tags!
+            # and yes, print max 3 artists of the song, otherwise the output will be screwed up
+            if 'Artists' in searches[i]:
+                searchArtists = ','.join(str(a).strip() for a in searches[i]["Artists"][0:3])
+            else:
+                searchArtists = '?'
 
             searchesList.append(searchName)
+            searchesList.append(searchType)
+            searchesList.append(searchArtists)
             sList.append(searchesList)
             songBuffer[i+1] = (searchName, searchId, )
 
@@ -157,4 +166,17 @@ class cliInterface(cmd.Cmd):
             print("Check the playlist, this number aint existing there!")
             return
         playlist.pop(songNumber)
+
+    def do_sh(self, arg):
+        'Plays random song from your playlist'
+        global playlist
+
+        lenPlaylist = len(playlist)
+        if lenPlaylist == 0:
+            print('Hey buddy! Your playlist is empty!')
+            return
+
+        from random import randrange
+        randSongNumber = randrange(lenPlaylist) + 1
+        self.do_pl(str(randSongNumber))
 
