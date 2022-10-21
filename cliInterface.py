@@ -14,6 +14,7 @@ class cliInterface(cmd.Cmd):
     intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\n"
     prompt = '(jelly) '
     connection = None
+    autoConnect = None
     conf = None
 
     def emptyline(self):
@@ -82,12 +83,12 @@ class cliInterface(cmd.Cmd):
         for i in range(len(searches)):
             searchesList = list()
 
-            songName = searches[i]["Name"]
-            songId = searches[i]["Id"]
+            searchName = searches[i]["Name"]
+            searchId = searches[i]["Id"]
 
-            searchesList.append(songName)
+            searchesList.append(searchName)
             sList.append(searchesList)
-            songBuffer[i+1] = (songName, songId, )
+            songBuffer[i+1] = (searchName, searchId, )
 
         printPrettyTable(sList)
 
