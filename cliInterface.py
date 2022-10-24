@@ -157,6 +157,7 @@ class cliInterface(cmd.Cmd):
             playlist = playListDict[activePlayList]
         else:
             playlist=dict()
+
         if len(playlist) > 0:
             maxNo = max(playlist.items(), key=operator.itemgetter(0))[0]
         else:
@@ -168,7 +169,7 @@ class cliInterface(cmd.Cmd):
 
     def do_pl(self, arg):
         '''Plays the song from active playlist
-        pl <number>
+        :233pl <number>
             <number> is a playlist's song number, default = 1'''
         tArgs = parse(arg)
         songNumber = tArgs[0] if len(tArgs) > 0 else 1
@@ -180,11 +181,10 @@ class cliInterface(cmd.Cmd):
                 print("No active playlist, please use option a first, or search for any media")
                 return
         else:
+            playlist = playListDict[activePlayList]
             if songNumber not in playlist:
-                print(playlist)
                 print("Check the playlist, this number aint existing there!")
                 return
-            playlist = playListDict[activePlayList]
             song = playlist[songNumber]
 
         songUrl = self.client.jellyfin.download_url(song[1])
@@ -213,32 +213,38 @@ class cliInterface(cmd.Cmd):
             <number> is a playlist's song number, default = 1
             <playlist> name of playlist, default = active playlist'''
 
-        global activePlayList
         tArgs = parse(arg)
         songNumber = tArgs[0] if len(tArgs) > 0 else 1
         activePL = tArgs[1] if len(tArgs) > 1 else activePlayList
+
         if activePL not in playListDict:
             print("Playlist {} has not been found".format(activePL))
-
             return
+
         playlist = playListDict[activePL]
         if songNumber not in playlist:
             print("Check the playlist, this number aint existing there!")
             return
+
         playlist.pop(songNumber)
 
     def do_sh(self, arg):
-        'Plays random song from your playlist'
-        global playlist
+        'Plays random song from your active playlist'
 
+        if activePlayList == '':
+            print('No active playlist, please use option a first')
+            return
+        
+        playlist = playListDict[activePlayList]
         lenPlaylist = len(playlist)
         if lenPlaylist == 0:
             print('Hey buddy! Your playlist is empty!')
             return
 
-        from random import randrange
-        randSongNumber = randrange(lenPlaylist) + 1
-        self.do_pl(str(randSongNumber))
+        songNumbers = list(playlist.keys())
+        from random import choice 
+        randSongNumber = str(choice(songNumbers))
+        self.do_pl(randSongNumber)
 
     def do_a(self, arg):
         '''Shows/changes active playlist
