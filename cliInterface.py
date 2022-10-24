@@ -5,7 +5,6 @@ from outputs import *
 
 import cmd
 import operator
-import subprocess
 import sys
 
 songBuffer = dict()
@@ -89,6 +88,8 @@ class cliInterface(cmd.Cmd):
         if '-t' in dArgs:
             searchType = dArgs['-t']
 
+        print(searchTerm)
+
         searches = self.client.jellyfin.search_media_items(term=searchTerm, media=searchType, limit=searchLimit)["Items"]
         sList = [["Name", "Type", "Artist(s)"]]
         for i in range(len(searches)):
@@ -169,8 +170,9 @@ class cliInterface(cmd.Cmd):
 
     def do_pl(self, arg):
         '''Plays the song from active playlist
-        :pl <number>
-            <number> is a playlist's song number, default = 1'''
+        pl <number> -t
+            <number> is a playlist's song number, default = 1,
+            -f plays the whole playlist forever'''
         tArgs = parse(arg)
         songNumber = tArgs[0] if len(tArgs) > 0 else 1
 
@@ -182,18 +184,20 @@ class cliInterface(cmd.Cmd):
                 return
         else:
             playlist = playListDict[activePlayList]
-            if songNumber not in playlist:
-                print("Check the playlist, this number aint existing there!")
-                return
-            song = playlist[songNumber]
-
-        songUrl = self.client.jellyfin.download_url(song[1])
-
-        pList = list()
-        pList.append(self.conf.player)
-        pList.append(songUrl)
-
-        subprocess.run(pList)
+            if '-t' not in tArgs:
+                if str(songNumber) not in playlist:
+                    print("Check the playlist, this number aint existing there!")
+                    return
+                song = playlist[str(songNumber)]
+                songUrl = self.client.jellyfin.download_url(song[1])
+                playSong(songUrl, self.conf.player)
+            else:
+                # play forever and ever
+                while 1 > 0:
+                    for s in playlist:
+                        song = playlist[str(s)]
+                        songUrl = self.client.jellyfin.download_url(song[1])
+                        playSong(songUrl, self.conf.player)
 
     def do_sp(self, arg):
         'saves playlists to a file'

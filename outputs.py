@@ -3,6 +3,7 @@ from conf.constants import PLAYLIST_FILE
 
 import json
 import os
+import subprocess
 
 def args2dict(arg):
     parmList = parse(arg)
@@ -17,6 +18,13 @@ def args2dict(arg):
 
 def parse(arg):
     return tuple(map(str, arg.split()))
+
+def playSong(songUrl, player):
+    pList = list()
+    pList.append(player)
+    pList.append(songUrl)
+
+    subprocess.run(pList)
 
 def printPrettyTable(data, headerNo=True):
     i = 0

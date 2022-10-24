@@ -41,7 +41,7 @@ Where:
 ## TODO
 * Searching not only by words, but also by statements, like "losing my religion" (words between "),
 * Some nice information like 'Connected to the server' when you're connected to the server,
-* Infite play (shuffle or repeat),
+* ~~Infite play (shuffle or repeat),~~
 * Adding whole songs from album to playlist at one shot,
 * ~~Flag to connected to the server automatically~~
 
