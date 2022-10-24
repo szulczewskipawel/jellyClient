@@ -4,6 +4,17 @@ from conf.constants import PLAYLIST_FILE
 import json
 import os
 
+def args2dict(arg):
+    parmList = parse(arg)
+    i = 1
+    parmDict = dict()
+
+    for z in parmList:
+        if (i % 2) == 0 and i > 1:
+            parmDict[str(parmList[i-2])] = z
+        i += 1
+    return parmDict
+
 def parse(arg):
     return tuple(map(str, arg.split()))
 

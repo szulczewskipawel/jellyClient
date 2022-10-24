@@ -26,8 +26,10 @@ Where:
 * pl <number> -- plays the song number <number> (from playlist), default 1,
 * q -- quits this beautiful client,
 * r -- shows recently added to the server stuff,
-* s <word> <limit> -- searches database, <word> is a word to search (default chopin), <limit> limits
-  items found (default 20),
+* s -s <word> -l <limit> -t <type>- - searches database
+    <word> is a word to search, default chopin, 
+    <limit> limits items found, default 20,
+    <type> type (one of: All, Audio, Folder, MusicAlbum, MusicArtist), default = Audio
 * sh -- plays random song from playlist,
 * u -- shows all registered users,
 * v -- shows version of the client

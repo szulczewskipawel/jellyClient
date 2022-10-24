@@ -29,7 +29,7 @@ class cliInterface(cmd.Cmd):
         
     def do_q(self, arg):
         'Says bye-bye to the server'
-        print('See you later aligator!')
+        print('See you later alligator!')
         sys.exit(0)
 
     def do_v(self, arg):
@@ -69,15 +69,24 @@ class cliInterface(cmd.Cmd):
     def do_s(self, arg):
         # TODO searching statements, eg "losing my religion" (words between ")
         '''Searches the database:
-        s <word> <limit>
-            <word>  is a word you want to search, default = chopin, 
-            <limit> shows first <limit> items found, default = 20'''
+        s -s <word> -l <limit>
+            -s <word>  is a word you want to search, default = chopin, 
+            -l <limit> shows first <limit> items found, default = 20,
+            -t <type> type (All, Audio, Folder, MusicAlbum, MusicArtist), default = Audio'''
         songBuffer.clear()
-        tArgs = parse(arg)
-        searchTerm = tArgs[0] if len(tArgs) > 0 else 'chopin'
-        searchLimit = tArgs[1] if len(tArgs) > 1 else 20
+        dArgs = args2dict(arg)
 
-        searches = self.client.jellyfin.search_media_items(term=searchTerm, limit=searchLimit)["Items"]
+        searchTerm = 'chopin'
+        searchLimit = 20
+        searchType = 'Audio'
+        if '-s' in dArgs:
+            searchTerm = dArgs['-s']
+        if '-l' in dArgs:
+            searchLimit = dArgs['-l']
+        if '-t' in dArgs:
+            searchType = dArgs['-t']
+
+        searches = self.client.jellyfin.search_media_items(term=searchTerm, media=searchType, limit=searchLimit)["Items"]
         sList = [["Name", "Type", "Artist(s)"]]
         for i in range(len(searches)):
             searchesList = list()
@@ -110,7 +119,7 @@ class cliInterface(cmd.Cmd):
         showBufferOrPlaylist(playlist)
 
     def do_i(self, arg):
-        '''Insert song (existed in buffer) to playlist
+        '''Inserts song (existed in buffer) to playlist
         i <number>
             <number> is a buffer's song number, default = 1'''
         tArgs = parse(arg)
@@ -179,4 +188,8 @@ class cliInterface(cmd.Cmd):
         from random import randrange
         randSongNumber = randrange(lenPlaylist) + 1
         self.do_pl(str(randSongNumber))
+
+    def do_dummy(self, arg):
+        parmDict = args2dict(arg)
+        print(parmDict)
 
