@@ -169,7 +169,7 @@ class cliInterface(cmd.Cmd):
 
     def do_pl(self, arg):
         '''Plays the song from active playlist
-        :233pl <number>
+        :pl <number>
             <number> is a playlist's song number, default = 1'''
         tArgs = parse(arg)
         songNumber = tArgs[0] if len(tArgs) > 0 else 1
