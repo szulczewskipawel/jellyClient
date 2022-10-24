@@ -4,11 +4,14 @@ from connection import jellyConnect
 from outputs import *
 
 import cmd
+import operator
 import subprocess
 import sys
 
 songBuffer = dict()
 playlist = dict()
+playListDict = dict()
+activePlayList = ''
 
 class cliInterface(cmd.Cmd):
     intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\n"
@@ -115,37 +118,76 @@ class cliInterface(cmd.Cmd):
         showBufferOrPlaylist(songBuffer)
    
     def do_p(self, arg):
-        'Shows playlist'
-        showBufferOrPlaylist(playlist)
+        '''Shows playlist <name>
+        p <name>
+            <name> is a name of playlist, shows all playlists if the parameter is not given
+        '''
+        tArgs = parse(arg)
+        playListName = tArgs[0] if len(tArgs) > 0 else 'all'
+
+        if playListName == 'all':
+            for pList in playListDict:
+                print("Playlist: " + pList)
+                showBufferOrPlaylist(playListDict[pList], False)
+        else:
+            if playListName in playListDict:
+                showBufferOrPlaylist(playListDict[playListName], False)
+            else:
+                print("No playlist {} found".format(playListName))
 
     def do_i(self, arg):
-        '''Inserts song (existed in buffer) to playlist
+        '''Inserts song (existed in buffer) to active playlist
         i <number>
             <number> is a buffer's song number, default = 1'''
         tArgs = parse(arg)
         songNumber = int(tArgs[0]) if len(tArgs) > 0 else 1
+        global activePlayList
+        global playlist
 
         if songNumber not in songBuffer:
             print("Check the buffer again, this number aint existing there!")
             return
-
-        l = len(playlist)
         songName = songBuffer[songNumber][0]
-        playlist[l+1] = songBuffer[songNumber]
-        print ('Song "{}" added to the playlist at position {}'.format(songName, l+1))
+
+        if activePlayList == '':
+            activePlayList = input("There are no songs in your playlist. What name do you want to "
+            + "give to playlist? ")
+
+        if activePlayList in playListDict:
+            playlist = playListDict[activePlayList]
+        else:
+            playlist=dict()
+        if len(playlist) > 0:
+            maxNo = max(playlist.items(), key=operator.itemgetter(0))[0]
+        else:
+            maxNo = 0
+        playlist[maxNo+1] = songBuffer[songNumber]
+
+        playListDict[activePlayList] = playlist
+        print ('Song "{}" added to the playlist at position {}'.format(songName, maxNo+1))
 
     def do_pl(self, arg):
-        '''Plays the song
+        '''Plays the song from active playlist
         pl <number>
             <number> is a playlist's song number, default = 1'''
         tArgs = parse(arg)
-        songNumber = int(tArgs[0]) if len(tArgs) > 0 else 1
+        songNumber = tArgs[0] if len(tArgs) > 0 else 1
 
-        if songNumber not in playlist:
-            print("Check the playlist, this number aint existing there!")
-            return
+        if activePlayList == '':
+            if len(songBuffer) > 0 and int(songNumber) in songBuffer:
+                song = songBuffer[int(songNumber)]
+            else:
+                print("No active playlist, please use option a first, or search for any media")
+                return
+        else:
+            if songNumber not in playlist:
+                print(playlist)
+                print("Check the playlist, this number aint existing there!")
+                return
+            playlist = playListDict[activePlayList]
+            song = playlist[songNumber]
 
-        songUrl = self.client.jellyfin.download_url(playlist[songNumber][1])
+        songUrl = self.client.jellyfin.download_url(song[1])
 
         pList = list()
         pList.append(self.conf.player)
@@ -154,23 +196,32 @@ class cliInterface(cmd.Cmd):
         subprocess.run(pList)
 
     def do_sp(self, arg):
-        'Saves playlist'
-        savePlaylist(playlist)
+        'saves playlists to a file'
+        savePlaylists(playListDict)
 
     def do_lp(self, arg):
         'Loads playlist'
-        global playlist
-        playlist = loadPlaylist()
-        self.do_p(self)
+        global playListDict
+        playListFF = loadPlaylist()
+        if playListFF is not None:
+            playListDict = playListFF
+            self.do_p('all')
 
     def do_d(self, arg):
         '''Deletes song from playlist
-        d <number>
-            <number> is a playlist's song number, default = 1'''
-        tArgs = parse(arg)
-        songNumber = int(tArgs[0]) if len(tArgs) > 0 else 1
-        global playlist
+        d <number> <playlist>
+            <number> is a playlist's song number, default = 1
+            <playlist> name of playlist, default = active playlist'''
 
+        global activePlayList
+        tArgs = parse(arg)
+        songNumber = tArgs[0] if len(tArgs) > 0 else 1
+        activePL = tArgs[1] if len(tArgs) > 1 else activePlayList
+        if activePL not in playListDict:
+            print("Playlist {} has not been found".format(activePL))
+
+            return
+        playlist = playListDict[activePL]
         if songNumber not in playlist:
             print("Check the playlist, this number aint existing there!")
             return
@@ -189,7 +240,23 @@ class cliInterface(cmd.Cmd):
         randSongNumber = randrange(lenPlaylist) + 1
         self.do_pl(str(randSongNumber))
 
-    def do_dummy(self, arg):
-        parmDict = args2dict(arg)
-        print(parmDict)
+    def do_a(self, arg):
+        '''Shows/changes active playlist
+        a <name>
+            changes active playlist to <name> or shows active playlist if the parameters is not
+            given'''
+        tArgs = parse(arg)
+        playListName = tArgs[0] if len(tArgs) > 0 else ''
+        global activePlayList
+
+        if playListName == '':
+            print("Active playlist: " + activePlayList)
+        else:
+            if playListName in playListDict:
+                activePlayList = playListName
+            else:
+                yn = input("No playlist {} found. Do you want to create it? ".format(playListName))
+                if 'y' or 'Y' in yn:
+                    activePlayList = playListName
+                    print("Playlist {} has been created and it's active now".format(playListName))
 

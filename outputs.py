@@ -18,53 +18,55 @@ def args2dict(arg):
 def parse(arg):
     return tuple(map(str, arg.split()))
 
-# json.dump treats keys always as a string,
-# so here is a small workaround...
-def jsonKeys2int(json):
-    if isinstance(json, dict):
-        return {int(k):v for k,v in json.items()}
-    return json
-
-def printPrettyTable(data):
+def printPrettyTable(data, headerNo=True):
     i = 0
     for z in data:
-        if i == 0:
-            z.insert(0, "No")
-        else:
-            z.insert(0, i)
-        i += 1
+        if headerNo == True:
+            if i == 0:
+                z.insert(0, "No")
+            else:
+                z.insert(0, i)
+            i += 1
     tab = PrettyTable(data[0])
     tab.add_rows(data[1:])
     print(tab)
 
-def showBufferOrPlaylist(buforplay):
+def showBufferOrPlaylist(buforplay, buffer=True):
     if len(buforplay) > 0:
-        bList = [["Name"]]
+        if buffer == True:
+            bList = [["Name"]]
+        else:
+            bList = [["No", "Name"]]
         for i in buforplay:
             smList = list()
+            if buffer != True:
+                smList.append(i)
             smList.append(buforplay[i][0])
             bList.append(smList)
-        printPrettyTable(bList)
+        printPrettyTable(bList, buffer)
     else:
         print('The list is empty at this momment.')
 
-def savePlaylist(playlist):
-    if len(playlist) == 0:
+def savePlaylists(playlists):
+    if len(playlists) == 0:
         print('Hey buddy! There is nothing to be saved, your playlist is empty!')
         return
     try:
         with open(PLAYLIST_FILE, 'w') as f:
-            json.dump(playlist, f, ensure_ascii=True)
+            json.dump(playlists, f, ensure_ascii=True)
     finally:
         print ('Playlist has been saved successfully')
 
 def loadPlaylist():
-    playlist = ''
+    playlists = ''
+    if not os.path.exists(PLAYLIST_FILE):
+        print('Paylist file {} is not present'.format(PLAYLIST_FILE))
+        return
     try:
         f = open(PLAYLIST_FILE)
-        playlist = json.load(f, object_hook=jsonKeys2int)
+        playlists = json.load(f)
         f.close()
     finally:
         print('Playlist has been loaded successfully')
-    return playlist
+    return playlists
 
