@@ -21,11 +21,10 @@ Where:
 * c -- connect to the server,
 * clear -- clears the screen,
 * d \<number\> \<playlist\> -- deletes song number \<number\> from playlist \<playlist\>, by default
-  \<playlist\> is active one, \<number\> can be a single number or list of numbers divided by ,
-(2,3,4 etc),
+  \<playlist\> is active one, \<number\> can be a single number or list of numbers divided by , or - (2,3,4 etc or 1-10),
 * help -- should help you with commands,
 * i <number> -- insert song number <number> (from buffer) to the playlist, default 1, \<number\> can
-  be a single number or list of numbers divided by , (2,3,4 etc)
+  be a single number or list of numbers divided by , or - (2,3,4 etc or 1-10)
 * lp -- loads playlist(s) from file
 * p -- show playlist
 * pl <number> -- plays the song number <number> (from playlist), default 1,

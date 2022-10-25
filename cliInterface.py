@@ -143,6 +143,13 @@ class cliInterface(cmd.Cmd):
             for a in tArgsList:
                 self.do_i(a)
             return
+        elif '-' in arg:
+            tArgsList = parse(arg, '-')
+            minNum = int(min(tArgsList))
+            maxNum = int(max(tArgsList))
+            for i in range(minNum, maxNum + 1):
+                self.do_i(str(i))
+            return
         else:
             tArgs = parse(arg)
         songNumber = str(tArgs[0]) if len(tArgs) > 0 else '1'
@@ -224,6 +231,13 @@ class cliInterface(cmd.Cmd):
             for a in tArgsList:
                 self.do_d(a)
             return
+        elif '-' in arg:
+            tArgsList = parse(arg, '-')
+            minNum = int(min(tArgsList))
+            maxNum = int(max(tArgsList))
+            for i in range(minNum, maxNum + 1): 
+                self.do_d(str(i))
+            return        
         else:
             tArgs = parse(arg)
         songNumber = str(tArgs[0]) if len(tArgs) > 0 else '1'
