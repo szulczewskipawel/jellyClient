@@ -21,18 +21,20 @@ Where:
 * c -- connect to the server,
 * clear -- clears the screen,
 * d \<number\> \<playlist\> -- deletes song number \<number\> from playlist \<playlist\>, by default
-  \<playlist\> is active one,
+  \<playlist\> is active one, \<number\> can be a single number or list of numbers divided by ,
+(2,3,4 etc),
 * help -- should help you with commands,
-* i <number> -- insert song number <number> (from buffer) to the playlist, default 1,
+* i <number> -- insert song number <number> (from buffer) to the playlist, default 1, \<number\> can
+  be a single number or list of numbers divided by , (2,3,4 etc)
 * lp -- loads playlist(s) from file
 * p -- show playlist
 * pl <number> -- plays the song number <number> (from playlist), default 1,
 * q -- quits this beautiful client,
 * r -- shows recently added to the server stuff,
 * s -s \<word\> -l \<limit\> -t \<type\>- - searches database:
---\<word\> is a word to search, default chopin,\n
---\<limit\> limits items found, default 20, \n
---\<type\> type (one of: All, Audio, Folder, MusicAlbum, MusicArtist), default = Audio\n
+--\<word\> is a word to search, default chopin,\
+--\<limit\> limits items found, default 20, \
+--\<type\> type (one of: All, Audio, Folder, MusicAlbum, MusicArtist), default = Audio\
 * sh -- plays random song from playlist,
 * sp -- saves playlist to file,
 * u -- shows all registered users,

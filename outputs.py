@@ -16,8 +16,11 @@ def args2dict(arg):
         i += 1
     return parmDict
 
-def parse(arg):
-    return tuple(map(str, arg.split()))
+def parse(arg, splitChar=' '):
+    if splitChar == ' ':
+        return tuple(map(str, arg.split()))
+    else:
+        return tuple(map(str, arg.split(splitChar)))
 
 def playSong(songUrl, player):
     pList = list()

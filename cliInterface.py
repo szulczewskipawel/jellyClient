@@ -88,8 +88,6 @@ class cliInterface(cmd.Cmd):
         if '-t' in dArgs:
             searchType = dArgs['-t']
 
-        print(searchTerm)
-
         searches = self.client.jellyfin.search_media_items(term=searchTerm, media=searchType, limit=searchLimit)["Items"]
         sList = [["Name", "Type", "Artist(s)"]]
         for i in range(len(searches)):
@@ -110,7 +108,7 @@ class cliInterface(cmd.Cmd):
             searchesList.append(searchType)
             searchesList.append(searchArtists)
             sList.append(searchesList)
-            songBuffer[i+1] = (searchName, searchId, )
+            songBuffer[str(i+1)] = (searchName, searchId, )
 
         printPrettyTable(sList)
 
@@ -140,13 +138,19 @@ class cliInterface(cmd.Cmd):
         '''Inserts song (existed in buffer) to active playlist
         i <number>
             <number> is a buffer's song number, default = 1'''
-        tArgs = parse(arg)
-        songNumber = int(tArgs[0]) if len(tArgs) > 0 else 1
+        if ',' in arg:
+            tArgsList = parse(arg, ',')
+            for a in tArgsList:
+                self.do_i(a)
+            return
+        else:
+            tArgs = parse(arg)
+        songNumber = str(tArgs[0]) if len(tArgs) > 0 else '1'
         global activePlayList
         global playlist
 
         if songNumber not in songBuffer:
-            print("Check the buffer again, this number aint existing there!")
+            print("Check the buffer again, number {} aint existing there!".format(songNumber))
             return
         songName = songBuffer[songNumber][0]
 
@@ -160,42 +164,41 @@ class cliInterface(cmd.Cmd):
             playlist=dict()
 
         if len(playlist) > 0:
-            maxNo = max(playlist.items(), key=operator.itemgetter(0))[0]
+            maxNo = int(max(playlist.items(), key=operator.itemgetter(0))[0])
         else:
             maxNo = 0
-        playlist[maxNo+1] = songBuffer[songNumber]
+        playlist[str(maxNo+1)] = songBuffer[songNumber]
 
         playListDict[activePlayList] = playlist
         print ('Song "{}" added to the playlist at position {}'.format(songName, maxNo+1))
 
     def do_pl(self, arg):
         '''Plays the song from active playlist
-        pl <number> -t
+        pl <number> -f
             <number> is a playlist's song number, default = 1,
             -f plays the whole playlist forever'''
         tArgs = parse(arg)
-        songNumber = tArgs[0] if len(tArgs) > 0 else 1
+        songNumber = str(tArgs[0]) if len(tArgs) > 0 else '1'
 
         if activePlayList == '':
-            if len(songBuffer) > 0 and int(songNumber) in songBuffer:
-                song = songBuffer[int(songNumber)]
-            else:
-                print("No active playlist, please use option a first, or search for any media")
-                return
+            print("No active playlist, please use option a first, or search for any media")
+            return
         else:
             playlist = playListDict[activePlayList]
-            if '-t' not in tArgs:
-                if str(songNumber) not in playlist:
+            if '-f' not in tArgs:
+                if songNumber not in playlist:
+                    print(songNumber)
+                    print(playlist)
                     print("Check the playlist, this number aint existing there!")
                     return
-                song = playlist[str(songNumber)]
+                song = playlist[songNumber]
                 songUrl = self.client.jellyfin.download_url(song[1])
                 playSong(songUrl, self.conf.player)
             else:
                 # play forever and ever
                 while 1 > 0:
                     for s in playlist:
-                        song = playlist[str(s)]
+                        song = playlist[s]
                         songUrl = self.client.jellyfin.download_url(song[1])
                         playSong(songUrl, self.conf.player)
 
@@ -216,9 +219,14 @@ class cliInterface(cmd.Cmd):
         d <number> <playlist>
             <number> is a playlist's song number, default = 1
             <playlist> name of playlist, default = active playlist'''
-
-        tArgs = parse(arg)
-        songNumber = tArgs[0] if len(tArgs) > 0 else 1
+        if ',' in arg:
+            tArgsList = parse(arg, ',')
+            for a in tArgsList:
+                self.do_d(a)
+            return
+        else:
+            tArgs = parse(arg)
+        songNumber = str(tArgs[0]) if len(tArgs) > 0 else '1'
         activePL = tArgs[1] if len(tArgs) > 1 else activePlayList
 
         if activePL not in playListDict:
