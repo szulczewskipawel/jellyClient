@@ -21,7 +21,7 @@ class JellyConf():
         if not 'autoconnect' in credsData:
             self.autoConnect = False
         else:
-            self.autoConnect = True
+            self.autoConnect = credsData['autoconnect'] 
 
     def getConfs(self, file=CONF_FILE):
         file = Path(CONF_FILE)
