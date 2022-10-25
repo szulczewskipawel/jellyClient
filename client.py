@@ -11,7 +11,7 @@ class JellyClient():
         cliInterf.conf = conf
 
         # autoconnect
-        if conf.autoConnect == True:
+        if conf.autoConnect.lower() == 'true':
             cliInterf.do_c(self)
 
         cliInterf.cmdloop()
