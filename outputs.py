@@ -3,24 +3,30 @@ from conf.constants import PLAYLIST_FILE
 
 import json
 import os
+import re
 import subprocess
 
-def args2dict(arg):
-    parmList = parse(arg)
-    i = 1
+def parse(arg):
+    result = re.findall(r"(-?\w+)(?:-(\w+)|)\s*(?:(\w+)|\"([^\"]+)|(\d+)-(\d+)|)", arg)
+    argsTuple = tuple(args for z in result for args in z if args != '')
     parmDict = dict()
+    if len(argsTuple) == 0:
+        return parmDict
 
-    for z in parmList:
-        if (i % 2) == 0 and i > 1:
-            parmDict[str(parmList[i-2])] = z
+    if '-' not in argsTuple[0]:
+        parmDict['max'] = max(argsTuple)
+        parmDict['min'] = min(argsTuple)
+        return parmDict
+
+    i = 1
+    for a in argsTuple:
+        if i == 1:
+            parmDict[a] = ''
+        else:
+            if i %2 == 0 and i > 1:
+                    parmDict[argsTuple[i-2]] = a
         i += 1
     return parmDict
-
-def parse(arg, splitChar=' '):
-    if splitChar == ' ':
-        return tuple(map(str, arg.split()))
-    else:
-        return tuple(map(str, arg.split(splitChar)))
 
 def playSong(songUrl, player):
     pList = list()

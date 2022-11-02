@@ -69,14 +69,13 @@ class cliInterface(cmd.Cmd):
         clear()
 
     def do_s(self, arg):
-        # TODO searching statements, eg "losing my religion" (words between ")
         '''Searches the database:
         s -s <word> -l <limit>
             -s <word>  is a word you want to search, default = chopin, 
             -l <limit> shows first <limit> items found, default = 20,
             -t <type> type (All, Audio, Folder, MusicAlbum, MusicArtist), default = Audio'''
         songBuffer.clear()
-        dArgs = args2dict(arg)
+        dArgs = parse(arg)
 
         searchTerm = 'chopin'
         searchLimit = 20
@@ -138,21 +137,21 @@ class cliInterface(cmd.Cmd):
         '''Inserts song (existed in buffer) to active playlist
         i <number>
             <number> is a buffer's song number, default = 1'''
-        if ',' in arg:
-            tArgsList = parse(arg, ',')
-            for a in tArgsList:
-                self.do_i(a)
-            return
-        elif '-' in arg:
-            tArgsList = parse(arg, '-')
-            minNum = int(min(tArgsList))
-            maxNum = int(max(tArgsList))
-            for i in range(minNum, maxNum + 1):
-                self.do_i(str(i))
-            return
-        else:
-            tArgs = parse(arg)
-        songNumber = str(tArgs[0]) if len(tArgs) > 0 else '1'
+
+        dArgs = parse(arg)
+        songNumber = '1'
+
+        if 'min' in dArgs and 'max' in dArgs:
+            minNum = int(dArgs['min'])
+            maxNum = int(dArgs['max'])
+
+            if minNum != maxNum:
+                for i in range(minNum, maxNum+1):
+                    self.do_i(str(i))
+                return
+            else:
+                songNumber = str(minNum)
+
         global activePlayList
         global playlist
 
@@ -174,10 +173,10 @@ class cliInterface(cmd.Cmd):
             maxNo = int(max(playlist.items(), key=operator.itemgetter(0))[0])
         else:
             maxNo = 0
-        playlist[str(maxNo+1)] = songBuffer[songNumber]
+        playlist[maxNo+1] = songBuffer[songNumber]
 
         playListDict[activePlayList] = playlist
-        print ('Song "{}" added to the playlist at position {}'.format(songName, maxNo+1))
+        print ('Song "{}" added to the playlist at position {}'.format(songName, int(maxNo)+1))
 
     def do_pl(self, arg):
         '''Plays the song from active playlist
@@ -185,7 +184,7 @@ class cliInterface(cmd.Cmd):
             <number> is a playlist's song number, default = 1,
             -f plays the whole playlist forever'''
         tArgs = parse(arg)
-        songNumber = str(tArgs[0]) if len(tArgs) > 0 else '1'
+        songNumber = int(tArgs['max']) if len(tArgs) > 0 and '-f' not in tArgs else 1
 
         if activePlayList == '':
             print("No active playlist, please use option a first, or search for any media")
@@ -195,14 +194,14 @@ class cliInterface(cmd.Cmd):
             if '-f' not in tArgs:
                 if songNumber not in playlist:
                     print(songNumber)
+                    print("Check the playlist, this number {} aint existing there!".format(songNumber))
                     print(playlist)
-                    print("Check the playlist, this number aint existing there!")
                     return
                 song = playlist[songNumber]
                 songUrl = self.client.jellyfin.download_url(song[1])
                 playSong(songUrl, self.conf.player)
             else:
-                # play forever and ever
+                # plays forever and ever
                 while 1 > 0:
                     for s in playlist:
                         song = playlist[s]
@@ -219,37 +218,36 @@ class cliInterface(cmd.Cmd):
         playListFF = loadPlaylist()
         if playListFF is not None:
             playListDict = playListFF
-            self.do_p('all')
+
+        for z in playListDict:
+            tempdict = {int(k):v for k,v in playListDict[z].items()}
+            playListDict[z] = tempdict
 
     def do_d(self, arg):
-        '''Deletes song from playlist
-        d <number> <playlist>
-            <number> is a playlist's song number, default = 1
-            <playlist> name of playlist, default = active playlist'''
-        if ',' in arg:
-            tArgsList = parse(arg, ',')
-            for a in tArgsList:
-                self.do_d(a)
-            return
-        elif '-' in arg:
-            tArgsList = parse(arg, '-')
-            minNum = int(min(tArgsList))
-            maxNum = int(max(tArgsList))
-            for i in range(minNum, maxNum + 1): 
-                self.do_d(str(i))
-            return        
-        else:
-            tArgs = parse(arg)
-        songNumber = str(tArgs[0]) if len(tArgs) > 0 else '1'
-        activePL = tArgs[1] if len(tArgs) > 1 else activePlayList
+        '''Deletes song from active playlist
+        d <number> 
+            <number> is a playlist's song number, default = 1'''
+        dArgs = parse(arg)
+        songNumber = '1'
 
-        if activePL not in playListDict:
-            print("Playlist {} has not been found".format(activePL))
+        if 'min' in dArgs and 'max' in dArgs:
+            minNum = int(dArgs['min'])
+            maxNum = int(dArgs['max'])
+
+            if minNum != maxNum:
+                for i in range(minNum, maxNum+1):
+                    self.do_d(str(i))
+                return
+            else:
+                songNumber = minNum
+
+        if activePlayList == '':
+            print("No active playlist, please use option a first")
             return
 
-        playlist = playListDict[activePL]
+        playlist = playListDict[activePlayList]
         if songNumber not in playlist:
-            print("Check the playlist, this number aint existing there!")
+            print("Check the playlist, the number {} aint existing there!".format(songNumber))
             return
 
         playlist.pop(songNumber)
@@ -278,7 +276,7 @@ class cliInterface(cmd.Cmd):
             changes active playlist to <name> or shows active playlist if the parameters is not
             given'''
         tArgs = parse(arg)
-        playListName = tArgs[0] if len(tArgs) > 0 else ''
+        playListName = tArgs['max'] if len(tArgs) > 0 else ''
         global activePlayList
 
         if playListName == '':
