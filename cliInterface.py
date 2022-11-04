@@ -12,8 +12,6 @@ playlist = dict()
 playListDict = dict()
 activePlayList = ''
 
-dontaskwhy = '8ccb6432266a2ef3d83fe8520a15fd03'
-
 class cliInterface(cmd.Cmd):
     intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\n"
     prompt = '(jelly) '
