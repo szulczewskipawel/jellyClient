@@ -12,6 +12,8 @@ playlist = dict()
 playListDict = dict()
 activePlayList = ''
 
+dontaskwhy = '8ccb6432266a2ef3d83fe8520a15fd03'
+
 class cliInterface(cmd.Cmd):
     intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\n"
     prompt = '(jelly) '
@@ -46,9 +48,9 @@ class cliInterface(cmd.Cmd):
 
         users = self.client.jellyfin.get_users()
         usersList = [["Name"]]
-        for i in range(len(users)):
+        for i in users:
             uList = list()
-            uList.append(users[i]["Name"])
+            uList.append(i["Name"])
             usersList.append(uList)
 
         printPrettyTable(usersList)
@@ -57,9 +59,9 @@ class cliInterface(cmd.Cmd):
         'Shows recently added stuff'
         added = self.client.jellyfin.get_recently_added()
         addedList = [["Name"]] 
-        for i in range(len(added)):
+        for i in added:
             aList = list()
-            aList.append(added[i]["Name"])
+            aList.append(i["Name"])
             addedList.append(aList)
 
         printPrettyTable(addedList)
@@ -77,29 +79,24 @@ class cliInterface(cmd.Cmd):
         songBuffer.clear()
         dArgs = parse(arg)
 
-        searchTerm = 'chopin'
-        searchLimit = 20
-        searchType = 'Audio'
-        if '-s' in dArgs:
-            searchTerm = dArgs['-s']
-        if '-l' in dArgs:
-            searchLimit = dArgs['-l']
-        if '-t' in dArgs:
-            searchType = dArgs['-t']
+        searchTerm = dArgs['-s'] if '-s' in dArgs else 'chopin'
+        searchLimit = dArgs['-l'] if '-l' in dArgs else 20 
+        searchType = dArgs['-t'] if '-t' in dArgs else 'Audio' 
 
         searches = self.client.jellyfin.search_media_items(term=searchTerm, media=searchType, limit=searchLimit)["Items"]
         sList = [["Name", "Type", "Artist(s)"]]
-        for i in range(len(searches)):
+        i=0
+        for song in searches:
             searchesList = list()
 
-            searchName = searches[i]["Name"]
-            searchId = searches[i]["Id"]
-            searchType = searches[i]["Type"]
+            searchName = song["Name"]
+            searchId = song["Id"]
+            searchType = song["Type"]
 
             # you wont believe -- not every audio has tags!
             # and yes, print max 3 artists of the song, otherwise the output will be screwed up
-            if 'Artists' in searches[i]:
-                searchArtists = ','.join(str(a).strip() for a in searches[i]["Artists"][0:3])
+            if 'Artists' in song:
+                searchArtists = ','.join(str(a).strip() for a in song["Artists"][0:3])
             else:
                 searchArtists = '?'
 
@@ -107,7 +104,7 @@ class cliInterface(cmd.Cmd):
             searchesList.append(searchType)
             searchesList.append(searchArtists)
             sList.append(searchesList)
-            songBuffer[str(i+1)] = (searchName, searchId, )
+            songBuffer[str(i+1)] = (searchName, searchId, searchType)
 
         printPrettyTable(sList)
 
@@ -120,8 +117,7 @@ class cliInterface(cmd.Cmd):
         p <name>
             <name> is a name of playlist, shows all playlists if the parameter is not given
         '''
-        tArgs = parse(arg)
-        playListName = tArgs[0] if len(tArgs) > 0 else 'all'
+        playListName = arg if len(arg) > 0 else 'all'
 
         if playListName == 'all':
             for pList in playListDict:
@@ -148,9 +144,8 @@ class cliInterface(cmd.Cmd):
             if minNum != maxNum:
                 for i in range(minNum, maxNum+1):
                     self.do_i(str(i))
-                return
-            else:
-                songNumber = str(minNum)
+                return            
+            songNumber = str(minNum)
 
         global activePlayList
         global playlist
@@ -159,6 +154,7 @@ class cliInterface(cmd.Cmd):
             print("Check the buffer again, number {} aint existing there!".format(songNumber))
             return
         songName = songBuffer[songNumber][0]
+        songType = songBuffer[songNumber][2]
 
         if activePlayList == '':
             activePlayList = input("There are no songs in your playlist. What name do you want to "
@@ -173,6 +169,24 @@ class cliInterface(cmd.Cmd):
             maxNo = int(max(playlist.items(), key=operator.itemgetter(0))[0])
         else:
             maxNo = 0
+
+        if songType == 'MusicAlbum':
+            yn = input("You've chosen album. Do you want to add all songs from this album to the "
+            + "playlist? ")
+            if 'Y' in yn or 'y' in yn:
+                albumId = songBuffer[songNumber][1]
+                sItems = self.client.jellyfin.get_items_by_letter(parent_id=albumId)['Items']
+                songsList = songsFromAlbum(sItems)
+                i = 1
+                for song in songsList:
+                    playlist[maxNo + i] = song[:3]
+                    print('Song "{}" added to the playlist at position {}'.format(song[0],
+                                                                                  int(maxNo)+i))
+                    i += 1
+                playlistDict[activePlayList] = playlist
+                return
+            return
+
         playlist[maxNo+1] = songBuffer[songNumber]
 
         playListDict[activePlayList] = playlist
@@ -195,7 +209,6 @@ class cliInterface(cmd.Cmd):
                 if songNumber not in playlist:
                     print(songNumber)
                     print("Check the playlist, this number {} aint existing there!".format(songNumber))
-                    print(playlist)
                     return
                 song = playlist[songNumber]
                 songUrl = self.client.jellyfin.download_url(song[1])
@@ -238,8 +251,7 @@ class cliInterface(cmd.Cmd):
                 for i in range(minNum, maxNum+1):
                     self.do_d(str(i))
                 return
-            else:
-                songNumber = minNum
+            songNumber = minNum
 
         if activePlayList == '':
             print("No active playlist, please use option a first")

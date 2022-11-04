@@ -87,3 +87,18 @@ def loadPlaylist():
         print('Playlist has been loaded successfully')
     return playlists
 
+def songsFromAlbum(sItems):
+    sList = list()
+    for i in sItems:
+        tmpTuple = tuple()
+        searchName = i["Name"]
+        searchId = i["Id"]
+        searchType = i["Type"]
+        searchIdxNo = i["IndexNumber"]
+
+        tmpTuple = (searchName, searchId, searchType, searchIdxNo)
+        sList.append(tmpTuple)
+
+    sortedList = sorted(sList, key=lambda song: song[3])
+    return sortedList
+
