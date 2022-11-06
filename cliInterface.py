@@ -181,7 +181,7 @@ class cliInterface(cmd.Cmd):
                     print('Song "{}" added to the playlist at position {}'.format(song[0],
                                                                                   int(maxNo)+i))
                     i += 1
-                playlistDict[activePlayList] = playlist
+                playListDict[activePlayList] = playlist
                 return
             return
 
