@@ -5,7 +5,7 @@ Brave attempt to write a command-line client for jellyfin.
 You need a config file (~/.jconf.json), something like this:
 
 ~~~
-{"url":"some_url", "username": "some_user", "password": "some_pass", "authssl": "True", "player": "mplayer", "autoconnect": "True"}
+{"url":"some_url", "username": "some_user", "password": "some_pass", "authssl": true, "player": "mplayer", "autoconnect": true}
 ~~~
 Where:
 * url -- url of the server,
