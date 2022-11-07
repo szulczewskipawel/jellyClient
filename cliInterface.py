@@ -13,7 +13,7 @@ playListDict = dict()
 activePlayList = ''
 
 class cliInterface(cmd.Cmd):
-    intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\n"
+    intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\nTip: Type intro to get a short introduction.\n"
     prompt = '(jelly) '
     connection = None
     conf = None
@@ -23,6 +23,23 @@ class cliInterface(cmd.Cmd):
 
     def default(self, arg):
         print ("What? Dunno understand ya, type help or ? to list commands.")
+
+    def do_intro(self, arg):
+        print('''
+First steps:
+c               # connect to server (not required with autoconnect enabled)
+a my_playlist   # create a new playlist (my_playlist)
+s -s "foo bar"  # search song(s) to add
+i <num>         # add song #num to playlist
+pl              # start playback
+
+Session handling:
+p               # show current playlist
+sp              # save playlist to file
+q               # quit program
+lp              # load previously stored playlist
+a my_playlist   # set my_playlist as active
+''')
 
     def do_c(self, arg):
         'Tries to connect to the server...'
