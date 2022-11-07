@@ -120,6 +120,7 @@ a my_playlist   # set my_playlist as active
             searchesList.append(searchArtists)
             sList.append(searchesList)
             songBuffer[str(i+1)] = (searchName, searchId, searchType)
+            i += 1
 
         printPrettyTable(sList)
 
