@@ -77,7 +77,7 @@ def savePlaylists(playlists):
 def loadPlaylist():
     playlists = ''
     if not os.path.exists(PLAYLIST_FILE):
-        print('Paylist file {} is not present'.format(PLAYLIST_FILE))
+        print('Playlist file {} is not present'.format(PLAYLIST_FILE))
         return
     try:
         f = open(PLAYLIST_FILE)
