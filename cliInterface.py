@@ -12,11 +12,30 @@ playlist = dict()
 playListDict = dict()
 activePlayList = ''
 
+class _Wrapper:
+
+    def __init__(self, fd):
+        self.fd = fd
+
+    def readline(self, *args):
+        try:
+            return self.fd.readline(*args)
+        except KeyboardInterrupt:
+            res = input('\nCtrl+C has been pressed. Do you want to leave the program (y/n)? ')
+            if res.lower() == 'y':
+                return 'q'
+            else:
+                return '\n'
+
 class cliInterface(cmd.Cmd):
-    intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\nTip: Type intro to get a short introduction.\n"
-    prompt = '(jelly) '
-    connection = None
-    conf = None
+
+    def __init__(self):
+        super().__init__(stdin=_Wrapper(sys.stdin))
+        self.use_rawinput = False
+        self.intro = "\nWelcome to pszs jellyConf client. Type help or ? to list commands.\nTip: Type intro to get a short introduction.\n"
+        self.prompt = '(jelly) '
+        self.connection = None
+        self.conf = None
 
     def emptyline(self):
         return
