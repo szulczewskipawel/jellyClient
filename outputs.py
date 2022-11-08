@@ -89,12 +89,17 @@ def loadPlaylist():
 
 def songsFromAlbum(sItems):
     sList = list()
+    searchIdxNo = 0
+
     for i in sItems:
         tmpTuple = tuple()
         searchName = i["Name"]
         searchId = i["Id"]
         searchType = i["Type"]
-        searchIdxNo = i["IndexNumber"]
+        try:    
+            searchIdxNo = i["IndexNumber"]
+        except:
+            searchIdxNo += 1
 
         tmpTuple = (searchName, searchId, searchType, searchIdxNo)
         sList.append(tmpTuple)
