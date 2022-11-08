@@ -239,6 +239,10 @@ a my_playlist   # set my_playlist as active
             print("No active playlist, please use option a first, or search for any media")
             return
         else:
+            if not activePlayList in playListDict:
+                print("You dont have any songs in your playlist, search (command s) and add some " +
+                      "songs to your playlist (command i).")
+                return
             playlist = playListDict[activePlayList]
             if '-f' not in tArgs:
                 if songNumber not in playlist:
