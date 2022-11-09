@@ -336,8 +336,8 @@ a my_playlist   # set my_playlist as active
             if playListName in playListDict:
                 activePlayList = playListName
             else:
-                yn = input("No playlist {} found. Do you want to create it? ".format(playListName))
-                if 'y' or 'Y' in yn:
+                yn = input("No playlist {} found. Do you want to create it? (y/n) ".format(playListName))
+                if yn.lower() == 'y':
                     activePlayList = playListName
                     print("Playlist {} has been created and it's active now".format(playListName))
 
