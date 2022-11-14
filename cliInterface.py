@@ -114,7 +114,7 @@ a my_playlist   # set my_playlist as active
         dArgs = parse(arg)
 
         searchTerm = dArgs['-s'] if '-s' in dArgs else 'chopin'
-        searchLimit = dArgs['-l'] if '-l' in dArgs else 20 
+        searchLimit = dArgs['-l'] if '-l' in dArgs and dArgs['-l'].isnumeric() else 20
         searchType = dArgs['-t'] if '-t' in dArgs else 'Audio' 
 
         searches = self.client.jellyfin.search_media_items(term=searchTerm, media=searchType, limit=searchLimit)["Items"]
