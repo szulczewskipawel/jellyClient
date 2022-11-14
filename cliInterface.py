@@ -236,7 +236,12 @@ a my_playlist   # set my_playlist as active
         songNumber = int(tArgs['max']) if len(tArgs) > 0 and '-f' not in tArgs and tArgs['max'].isnumeric() else 1
 
         if activePlayList == '':
-            print("No active playlist, please use option a first, or search for any media")
+            try:
+                songId = songBuffer[str(songNumber)][1]
+                songUrl = self.client.jellyfin.download_url(songId)
+                playSong(songUrl, self.conf.player)
+            except:
+                print("You don't have active playlist and don't have songs in the buffer. Cannot play the song.")
             return
         else:
             if not activePlayList in playListDict:
