@@ -233,7 +233,7 @@ a my_playlist   # set my_playlist as active
             <number> is a playlist's song number, default = 1,
             -f plays the whole playlist forever'''
         tArgs = parse(arg)
-        songNumber = int(tArgs['max']) if len(tArgs) > 0 and '-f' not in tArgs else 1
+        songNumber = int(tArgs['max']) if len(tArgs) > 0 and '-f' not in tArgs and tArgs['max'].isnumeric() else 1
 
         if activePlayList == '':
             print("No active playlist, please use option a first, or search for any media")
