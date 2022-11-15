@@ -14,6 +14,10 @@ class JellyClient():
         if conf.autoConnect.lower() == 'true':
             cliInterf.do_c(self)
 
+        # autoloadplaylist
+        if conf.autoLoadPlayList.lower() == 'true':
+            cliInterf.do_lp(self)
+
         cliInterf.cmdloop()
 
 foo = JellyClient()

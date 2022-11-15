@@ -5,7 +5,7 @@ Brave attempt to write a command-line client for jellyfin.
 You need a config file (~/.jconf.json), something like this:
 
 ~~~
-{"url":"some_url", "username": "some_user", "password": "some_pass", "authssl": true, "player": "mplayer", "autoconnect": true}
+{"url":"some_url", "username": "some_user", "password": "some_pass", "authssl": true, "player": "mplayer", "autoconnect": "true", "autoloadplaylist": "true"}
 ~~~
 Where:
 * url -- url of the server,
@@ -14,6 +14,7 @@ Where:
 * authssl -- authentication via SSL? Acceptable values: True or False, False is by default,
 * player -- your local media player, like mplayer or whatever
 * autoconnect -- should client connect to the server automaticaly after run?
+* autoloadplaylist -- should client automaticaly load the playlist from file?
 
 ## commands
 * a \<name\> -- shows/changes active playlist,
