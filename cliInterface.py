@@ -71,6 +71,11 @@ a my_playlist   # set my_playlist as active
 
     def do_c(self, arg):
         'Tries to connect to the server...'
+
+        if self.connection is not None:
+            print("Hey, you are connected to the server!")
+            return
+
         self.connection = jellyConnect(self.conf)
         self.client = self.connection.client
         
