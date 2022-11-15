@@ -19,7 +19,7 @@ class JellyConf():
             self.authssl = credsData['authssl']
 
         if not 'autoconnect' in credsData:
-            self.autoConnect = False
+            self.autoConnect = 'f' 
         else:
             self.autoConnect = credsData['autoconnect'] 
 

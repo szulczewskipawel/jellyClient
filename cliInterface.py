@@ -12,6 +12,9 @@ playlist = dict()
 playListDict = dict()
 activePlayList = ''
 
+# list of commands that need client to be connected
+onlineCmds = ['s', 'pl', 'r', 'sh', 'u']
+
 class _Wrapper:
 
     def __init__(self, fd):
@@ -39,6 +42,12 @@ class cliInterface(cmd.Cmd):
 
     def emptyline(self):
         return
+
+    def precmd(self, line):
+        if line in onlineCmds and self.connection == None:
+            print("You are not connected to the server. Please use option 'c' to connect")
+            return ''
+        return line
 
     def default(self, arg):
         print ("What? Dunno understand ya, type help or ? to list commands.")
@@ -76,9 +85,6 @@ a my_playlist   # set my_playlist as active
 
     def do_u(self, arg):
         'Shows all registered users'
-        if self.connection is None:
-            print('Client is not connected! Please connect to the server.')
-            return
 
         users = self.client.jellyfin.get_users()
         usersList = [["Name"]]
@@ -110,6 +116,7 @@ a my_playlist   # set my_playlist as active
             -s <word>  is a word you want to search, default = chopin, 
             -l <limit> shows first <limit> items found, default = 20,
             -t <type> type (All, Audio, Folder, MusicAlbum, MusicArtist), default = Audio'''
+
         songBuffer.clear()
         dArgs = parse(arg)
 
@@ -298,7 +305,7 @@ a my_playlist   # set my_playlist as active
             songNumber = minNum
 
         if activePlayList == '':
-            print("No active playlist, please use option a first")
+            print("No active playlist, please use option 'a' first")
             return
 
         playlist = playListDict[activePlayList]
